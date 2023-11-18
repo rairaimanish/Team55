@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vertex AI PaLM API Chat Demo</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans&display=swap" rel="stylesheet"> 
+    <style>
+      body{
+        font-family: 'DM Sans', sans-serif;
+        background-color: #005D63;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      .main-container {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 1200px; /* adjust as needed */
+      }
+
+      .right-container {
+  background-color: #ffffff;
+  border-radius: 5px;
+  padding: 20px;
+  width: 100%; 
+  max-width: 800px; 
+  margin-left: 20px;
+  margin-right: 20px; 
+  box-sizing: border-box; /* new line */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+} 
+
+#text-box {
+  width: 100%;
+  height: 80vh; 
+  padding: 20px;
+  font-size: 16px;
+  font-family: 'DM Sans', sans-serif;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box; /* new line */
+  resize: none; 
+}
+      .chat-container {
+        background-color: #ffffff;
+        border-radius: 5px;
+        padding: 20px;
+        width: 80%;
+        max-width: 600px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      #chat-form {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+
+      #user-input {
+        flex-grow: 1;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        font-size: 16px;
+      }
+
+      #submitBtn {
+        background-color: #005D63;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 15px;
+        margin-left: 10px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      #submitBtn:hover {
+        background-color: #000000;
+      }
+      #genBtn {
+        background-color: #005D63;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 15px;
+        margin-left: 10px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      #genBtn:hover {
+        background-color: #000000;
+      }
+
+      #result {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 20px;
+        background-color: #f8f8f8;
+        min-height: 100px;
+        overflow-wrap: break-word;
+        margin-bottom: 20px;
+      }
+
+
+      #map {
+        width: 100%;
+        height: 400px;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+      .chatbot-title{
+        font-size: 55px;
+        font-weight: bold;
+      }
+      .your-itinerary{
+        font-size: 45px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-container">
+    <div class="chat-container">
+      <h1 class="chatbot-title">explorer</h1>
+      <form id="chat-form">
+        <input
+          type="text"
+          id="user-input"
+          name="user_input"
+          placeholder="Your query..."
+        />
+        <button type="submit" id="submitBtn">Send</button>
+        <button type="submit" id="genBtn">Generate</button>
+      </form>
+      <div id="result"></div>
+      <div id="attributes"></div>
+      <div id="map"></div>
+    </div>
+  </div>
+  <div class="right-container">
+    <h1 class ="your-itinerary">Your Itinerary</h1>
+    <textarea id="text-box" readonly>
+      Generate your itinerary
+    </textarea>
+  </div>
+</div>
+
+    <script>
+      function getCoordinates(str) {
+        var regex = /\-?\d+\.\d+, \-?\d+\.\d+/g;
+        var coordinates = str.match(regex);
+        return coordinates;
+      }
+    
+      function initMap(cords, infoContent) {
+      if (cords) {
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 12,
+          center: cords
+        });
+
+        var marker = new google.maps.Marker({
+          position: cords,
+          map: map
+        });
+
+        // Create a new info window with the provided content
+        var infowindow = new google.maps.InfoWindow({
+          content: infoContent
+        });
+
+        // Open the info window when the marker is clicked
+        marker.addListener('click', function() {
+          infowindow.open(map, marker);
+          });
+        }
+      }
+    
+      window.onload = function () {
+        document
+          .getElementById("chat-form")
+          .addEventListener("generate"), function(event){
+            let userInput = document.getElementById("user-input").value;
+            let url = `/itgen?user_input=${encodeURIComponent(userInput)}`;
+            fetch(url)
+                .then((response) => response.json())
+                .then((data) => {
+                  let content = data.content;
+                  let cords = data.cords;
+                  let attributes = data.attributes;
+                  let generated_itinerary = data.generated_itinerary;
+
+                  cords = getCoordinates(cords);
+                  let resultDiv = document.getElementById("result");
+                  resultDiv.innerHTML = content;
+
+                  let i = 1;
+                  let itineraryBox = document.getElementById("text-box");
+                  itineraryBox.value = generated_itinerary + i.toString();
+                  i++;
+
+                  if (cords) {
+                    var latLng = cords[0].split(',').map(Number);  // Convert string to numbers
+                    var newCords = { lat: latLng[0], lng: latLng[1] };
+                    initMap(newCords, content);  // Update the map with new coordinates and info window content
+                  }
+                })
+                .catch((error) => {
+                  console.error("Error fetching PaLM response:", error);
+                });
+          });
+          }
+          .addEventListener("submit", function (event) {
+            // Prevent the form from submitting and refreshing the page
+            event.preventDefault();
+    
+            let userInput = document.getElementById("user-input").value;
+            let url = `/palm2?user_input=${encodeURIComponent(userInput)}`;
+    
+            fetch(url)
+                .then((response) => response.json())
+                .then((data) => {
+                  let content = data.content;
+                  let cords = data.cords;
+                  let attributes = data.attributes;
+                  let generated_itinerary = data.generated_itinerary;
+
+                  cords = getCoordinates(cords);
+                  let resultDiv = document.getElementById("result");
+                  resultDiv.innerHTML = content;
+
+                  let i = 1;
+                  let itineraryBox = document.getElementById("text-box");
+                  itineraryBox.value = generated_itinerary + i.toString();
+                  i++;
+
+                  if (cords) {
+                    var latLng = cords[0].split(',').map(Number);  // Convert string to numbers
+                    var newCords = { lat: latLng[0], lng: latLng[1] };
+                    initMap(newCords, content);  // Update the map with new coordinates and info window content
+                  }
+                })
+                .catch((error) => {
+                  console.error("Error fetching PaLM response:", error);
+                });
+          });
+        initMap({ lat: 22.3193, lng: 114.1694 });  // Initialize the map with Hong Kong coordinates
+      };
+    </script>
+    
+    <!-- Add the Google Maps JavaScript API -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyApDMu5_k3hw-YmMlVx_ctMr2jh5t77bos&callback=initMap">
+    </script>
+  </body>
+</html>
