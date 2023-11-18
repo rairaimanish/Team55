@@ -1,7 +1,7 @@
-# Team 55 Cathay Pacific Hackerthon
+# Team 55 Cathay Pacific Hackathon
 
 # AI chatbot
-- NLP c lities
+- NLP capabilities
 - Semantic Analysis
 - Generative AI
 
