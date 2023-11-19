@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800;9..40,900&display=swap');
+
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/*================ VARIABLES CSS ================*/
+:root{
+    
+  --nav-height: 3.5rem;
+
+  /*======= Colours =======*/
+  --first-color: #e99dae;
+  --first-color-transparent: #e99dae61;
+  --body-color: #F3F0EA;
+  --main-text-color: #1B1B1B;
+  --text-color-lighten: #A5A5A5;
+
+
+  --nav-text-color: #4d4d4e;
+  --nav-border-color: #797777;
+  --border-color: #79777752;
+  --body-color-darker: #e1d4c581; 
+  --body-color-darker-calendar: #f0e6dc; 
+
+  /*======= Font and typography =======*/
+  --body-font: 'DM Sans', sans-serif;
+  --largest-font-size: 2.65rem;
+  --big-font-size: 2.25rem;
+  --h1-font-size: 1.5rem;
+  --h2-font-size: 1.25rem;
+  --h3-font-size: 1rem;
+  --normal-font-size: .938rem;
+  --small-font-size: .813rem;
+  --smaller-font-size: .75rem;
+
+  /*======= Margin distance =======*/
+  --dist-between-sections: 100px;
+  --dist-between-txt-img: 100px;
+  --dist-between-title-descr: 18px;
+  
+}
+
+
+/* Change scrollbar track color to transparent */
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+/* Change scrollbar thumb color to dark gray */
+::-webkit-scrollbar-thumb {
+  background-color: #a5a5a5cc;
+  border-radius: 25px;
+}
+
+
+/* Change scrollbar track width to 8px */
+::-webkit-scrollbar-track {
+  background-color: transparent;
+  margin: 4px;
+}
+
+.button_shadow{
+  box-shadow: 0px 13px 26px -2px rgba(0, 0, 0, 0.15);
+}
